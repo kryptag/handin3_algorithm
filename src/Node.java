@@ -4,22 +4,28 @@ import java.util.List;
 public class Node {
 
     int duration;
+    String name;
+
 
     List<Node> dependencies;
 
     // earliest start & finish
-    int eStart;
-    int eFinish;
+    int eStart = 0;
+    int eFinish = 0;
 
     // latest start & finish
-    int lStart;
-    int lFinish;
+    int lStart = 0;
+    int lFinish = 0;
 
-    public Node(int dur){
+    public Node(int dur, String name){
         this.duration = dur;
         this.dependencies = new ArrayList<>();
+        this.name = name;
     }
 
+    public String getName(){
+        return this.name;
+    }
     public int getDuration() {
         return duration;
     }
@@ -66,5 +72,9 @@ public class Node {
 
     public void setlFinish(int lFinish) {
         this.lFinish = lFinish;
+    }
+
+    public int calcFloat() {
+        return lStart - eStart;
     }
 }

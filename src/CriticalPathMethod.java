@@ -1,55 +1,97 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CriticalPathMethod {
 
 
-    public int getCriticalPath(Node startNode){
-        List<Node> critPath = new ArrayList<>();
-        Node currentNode = startNode;
-        int longestDurPath = 0;
-        for (int i = 0; i < currentNode.getDependencies().size(); i++) {
-            if(longestDurPath < getDurationFromPath(currentNode, i)) {
-                longestDurPath = getDurationFromPath(currentNode, i);
-
-            }
-            System.out.println(getDurationFromPath(currentNode,i));
-        }
-        return longestDurPath;
-    }
-
-    private int getDurationFromPath(Node start, int path){
-        Node currentNode = start;
-        int totalDuration = start.getDuration();
-        while (currentNode.getDependencies().size() > 0){
-            if(currentNode.getDependencies().size() == 1){
-                currentNode = currentNode.getDependencies().get(0);
-                totalDuration += currentNode.getDuration();
-            }else {
-                currentNode = currentNode.getDependencies().get(path);
-                totalDuration += currentNode.getDuration();
-            }
-        }
-        return totalDuration;
-    }
-
-    public List<Node> getPaths(Node start, List<Node> list, int path){
+    public List<List<Node>> getPaths(Node start, List<List<Node>> pths){
         Node cn = start;
-        List<Node> nodes = list;
-        nodes.add(start);
-        while(cn.getDependencies().size() > 0){
-            System.out.println(cn.duration);
-            if(cn.getDependencies().size() == 1){
-                cn = cn.getDependencies().get(0);
-            }else {
-                for (int i = 0; i < cn.getDependencies().size(); i++) {
-                    getPaths(cn.getDependencies().get(i), nodes, i);
-                }
-                cn = cn.getDependencies().get(path);
+
+        List<List<Node>> paths = pths;
+
+            for(Node node : cn.getDependencies()) {
+                List<Node> path = new ArrayList<>();
+                path.add(cn);
+                getPath(node, path, paths);
+
             }
-            nodes.add(cn);
+
+
+        return paths;
+    }
+
+    public List<Node> getPath(Node node, List<Node> nodes, List<List<Node>> nodeList){
+        List<Node> path = nodes;
+        path.add(node);
+        if(node.getDependencies().size() == 0){
+            nodeList.add(path);
+            return path;
+        } else if (node.getDependencies().size() == 1) {
+            getPath(node.getDependencies().get(0), path, nodeList);
+        } else if (node.getDependencies().size() > 1) {
+                for (Node n : node.getDependencies()) {
+                    List<Node> newList = new ArrayList<>();
+                    for (Node no : path) {
+                        newList.add(no);
+                        if (no.getName().equals(node.getName())){
+                            break;
+                        }
+                    }
+                    getPath(n, newList, nodeList);
+                }
+        }
+        return path;
+    }
+
+
+    public List<Node> getCritPath(List<List<Node>> paths){
+        int index = 0;
+        int longestDuration = 0;
+
+        for (int i = 0; i < paths.size(); i++) {
+                int newDuration = 0;
+                for (Node node : paths.get(i)) {
+                    newDuration += node.getDuration();
+                }
+                if (newDuration > longestDuration) {
+                    longestDuration = newDuration;
+                    index = i;
+                }
         }
 
-        return nodes;
+        return paths.get(index);
     }
+
+    public void calcEarlyStart(List<List<Node>> paths) {
+        List<Node> critNodes = getCritPath(paths);
+        for (int i = 0; i < critNodes.size(); i++) {
+            if (i == 0) {
+                critNodes.get(i).seteStart(1);
+                critNodes.get(i).setlStart(1);
+                critNodes.get(i).seteFinish(critNodes.get(i).getDuration());
+                critNodes.get(i).setlFinish(critNodes.get(i).getDuration());
+            } else {
+                critNodes.get(i).seteStart(critNodes.get(i - 1).geteFinish() + 1);
+                critNodes.get(i).setlStart(critNodes.get(i - 1).getlFinish() + 1);
+                critNodes.get(i).seteFinish(critNodes.get(i - 1).geteFinish() + critNodes.get(i).getDuration());
+                critNodes.get(i).setlFinish(critNodes.get(i - 1).getlFinish() + critNodes.get(i).getDuration());
+            }
+        }
+
+        for (int j = 0; j < paths.size(); j++) {
+            for(int i = 1; i < paths.get(j).size(); i++) {
+                if(paths.get(j).get(i - 1).geteFinish() + paths.get(j).get(i).getDuration() - 1 > paths.get(j).get(i).geteStart()) {
+                   continue;
+                }
+                paths.get(j).get(i).seteStart(paths.get(j).get(i - 1).geteFinish() + 1);
+                paths.get(j).get(i).seteFinish(paths.get(j).get(i - 1).geteFinish() + paths.get(j).get(i).getDuration() - 1);
+            }
+        }
+
+    }
+
+
 }
+//paths.get(j).get(i).setlStart(paths.get(j).get(i - 1).getlFinish() + 1);
+//                paths.get(j).get(i).setlFinish(paths.get(j).get(i - 1).getlFinish() + paths.get(j).get(i).getDuration());

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/HandIn3_Graphs.iml" filepath="$PROJECT_DIR$/HandIn3_Graphs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/handin3_algorithm.iml" filepath="$PROJECT_DIR$/handin3_algorithm.iml" />
     </modules>
   </component>
 </project>
